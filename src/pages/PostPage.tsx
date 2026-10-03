@@ -31,7 +31,7 @@ export default function PostPage() {
     return (
       <section>
         <p>Пост не найден</p>
-        <Link to="/posts">← К списку постов</Link>
+        <Link to="/posts">К списку постов</Link>
       </section>
     );
   }
@@ -47,7 +47,7 @@ export default function PostPage() {
   return (
     <section>
       <Link to="/posts" className="back-link">
-          К списку постов
+        К списку постов
       </Link>
 
       <h1>{post.title}</h1>
@@ -57,7 +57,7 @@ export default function PostPage() {
 
       <h2>Комментарии</h2>
 
-      {commentsLoading && <Loader text="Загрузкка" />}
+      {commentsLoading && <Loader text="Загрузка..." />}
 
       {commentsError && (
         <ErrorMessage
