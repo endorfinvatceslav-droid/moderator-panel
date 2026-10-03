@@ -31,18 +31,23 @@ export default function PostsPage() {
         className="input"
         value={query}
         onChange={e => handleQueryChange(e.target.value)}
-        placeholder="Поиск по заголовку и тексту"/>
+        placeholder="Поиск по заголовку и тексту"
+      />
 
+      {query !== debouncedQuery && <p className="muted">Печатаете...</p>}
 
       <ul className="list">
-        {posts?.map(post => ( <PostCard key={post.id} post={post} />))}
+        {posts?.map(post => (
+          <PostCard key={post.id} post={post} />
+        ))}
       </ul>
 
       <Pagination
         page={page}
         hasNext={hasNext}
         isDisabled={isLoading}
-        onChange={setPage}/>
+        onChange={setPage}
+      />
     </section>
   );
 }
