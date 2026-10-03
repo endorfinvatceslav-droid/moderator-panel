@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { endpoints, POSTS_PER_PAGE } from '../api/endpoints';
+import { EmptyState } from '../components/EmptyState';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { Loader } from '../components/Loader';
 import { Pagination } from '../components/Pagination';
 import { PostCard } from '../components/PostCard';
 import { useDebounce } from '../hooks/useDebounce';
@@ -12,7 +15,12 @@ export default function PostsPage() {
 
   const debouncedQuery = useDebounce(query, 500);
 
-  const { data: posts, isLoading } = useFetch<Post[]>(
+  const {
+    data: posts,
+    isLoading,
+    error,
+    refetch,
+  } = useFetch<Post[]>(
     endpoints.posts({ page, query: debouncedQuery })
   );
 
@@ -31,10 +39,15 @@ export default function PostsPage() {
         className="input"
         value={query}
         onChange={e => handleQueryChange(e.target.value)}
-        placeholder="Поиск по заголовку и тексту"
-      />
+        placeholder="Поиск по заголовку и тексту"/>
 
-      {query !== debouncedQuery && <p className="muted">Печатаете...</p>}
+      {isLoading && <Loader />}
+
+      {error && <ErrorMessage message={error} onRetry={refetch} />}
+
+      {!isLoading && !error && posts?.length === 0 && (
+        <EmptyState text="Ничего не найдено" />
+      )}
 
       <ul className="list">
         {posts?.map(post => (
@@ -46,8 +59,7 @@ export default function PostsPage() {
         page={page}
         hasNext={hasNext}
         isDisabled={isLoading}
-        onChange={setPage}
-      />
+        onChange={setPage}/>
     </section>
   );
 }
