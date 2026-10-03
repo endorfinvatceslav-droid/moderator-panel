@@ -16,6 +16,29 @@ export function useFetch<T>(url: string): FetchState<T> {
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        //нужен ебаный сигнал
+        const response = await fetch(url);
+
+        setStatus(response.status);
+
+        if (!response.ok) {
+          throw new Error(`Ошибка ${response.status}`);
+        }
+
+        const result: T = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
   }, [url, attempt]);
 
   function refetch() {
