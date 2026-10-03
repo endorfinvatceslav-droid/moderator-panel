@@ -16,12 +16,16 @@ export function useFetch<T>(url: string): FetchState<T> {
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchData() {
       try {
         setIsLoading(true);
         setError(null);
-        //нужен ебаный сигнал
-        const response = await fetch(url);
+
+        const response = await fetch(url, {
+          signal: controller.signal,
+        });
 
         setStatus(response.status);
 
@@ -32,13 +36,21 @@ export function useFetch<T>(url: string): FetchState<T> {
         const result: T = await response.json();
         setData(result);
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+
         setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchData();
+
+    return () => controller.abort();
   }, [url, attempt]);
 
   function refetch() {
