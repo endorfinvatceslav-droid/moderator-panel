@@ -1,32 +1,73 @@
 import { Link, useParams } from 'react-router-dom';
+import { endpoints } from '../api/endpoints';
+import { AuthorBadge } from '../components/AuthorBadge';
+import { CommentList } from '../components/CommentList';
+import { ErrorMessage } from '../components/ErrorMessage';
+import { Loader } from '../components/Loader';
+import { useFetch } from '../hooks/useFetch';
+import type { Comment, Post } from '../types';
 
-/**
- * TODO (задача 4): соберите страницу поста.
- *
- * 1. Загрузите пост: useFetch<Post>(endpoints.post(postId)).
- * 2. Загрузите комментарии: useFetch<Comment[]>(endpoints.postComments(postId)).
- * 3. Обработайте состояния поста:
- *    - загрузка -- Loader;
- *    - статус 404 -- сообщение «Пост не найден» и ссылка на /posts
- *      (проверьте на адресе /posts/9999);
- *    - любая другая ошибка -- ErrorMessage с кнопкой «Повторить».
- * 4. Покажите заголовок и текст поста, под ними -- <AuthorBadge userId={post.userId} />.
- * 5. Покажите комментарии через CommentList (со своими состояниями загрузки и ошибки).
- * 6. Под списком -- CommentForm. Новый комментарий храните в локальном state
- *    и выводите вместе с загруженными.
- *
- * Подсказка: jsonplaceholder не сохраняет данные и всегда возвращает id: 501.
- * Чтобы key не повторялся, перед добавлением замените id, например на Date.now().
- */
 export default function PostPage() {
   const { postId = '' } = useParams();
+
+  const {
+    data: post,
+    isLoading: postLoading,
+    error: postError,
+    status: postStatus,
+    refetch: refetchPost,
+  } = useFetch<Post>(endpoints.post(postId));
+
+  const {
+    data: comments,
+    isLoading: commentsLoading,
+    error: commentsError,
+    refetch: refetchComments,
+  } = useFetch<Comment[]>(endpoints.postComments(postId));
+
+  if (postLoading) return <Loader />;
+
+  if (postStatus === 404) {
+    return (
+      <section>
+        <p>Пост не найден</p>
+        <Link to="/posts">← К списку постов</Link>
+      </section>
+    );
+  }
+
+  if (postError || !post) {
+    return (
+      <ErrorMessage
+        message={postError ?? 'Пост не найден'}
+        onRetry={refetchPost}/>
+    );
+  }
 
   return (
     <section>
       <Link to="/posts" className="back-link">
-        ← К списку постов
+          К списку постов
       </Link>
-      <p className="muted">Здесь должна появиться страница поста #{postId}.</p>
+
+      <h1>{post.title}</h1>
+      <p className="card__text">{post.body}</p>
+
+      <AuthorBadge userId={post.userId} />
+
+      <h2>Комментарии</h2>
+
+      {commentsLoading && <Loader text="Загрузкка" />}
+
+      {commentsError && (
+        <ErrorMessage
+          message={commentsError}
+          onRetry={refetchComments}/>
+      )}
+
+      {!commentsLoading && !commentsError && (
+        <CommentList comments={comments ?? []} />
+      )}
     </section>
   );
 }
