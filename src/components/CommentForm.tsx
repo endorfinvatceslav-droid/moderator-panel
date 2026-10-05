@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import { endpoints } from '../api/endpoints';
+import { useMutation } from '../hooks/useMutation';
 import type { Comment } from '../types';
 
 type CommentFormProps = {
@@ -11,49 +13,63 @@ export function CommentForm({ postId, onCreated }: CommentFormProps) {
   const [email, setEmail] = useState('');
   const [body, setBody] = useState('');
 
-  // TODO (задача 5.1): подключите useMutation<Comment> для POST-запроса
-  // на endpoints.comments. Уберите заглушки ниже и возьмите значения из хука.
-  const isLoading = false;
-  const error: string | null = null;
+  const { isLoading, error, execute } =
+    useMutation<Comment>(endpoints.comments);
 
-  const isValid = name.trim() !== '' && email.trim() !== '' && body.trim() !== '';
+  const isValid =
+    name.trim() !== '' &&
+    email.trim() !== '' &&
+    body.trim() !== '';
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    // TODO (задача 5.2):
-    // 1. отправьте { postId, name, email, body } через execute;
-    // 2. если сервер вернул комментарий -- передайте его в onCreated
-    //    и очистите поля формы;
-    // 3. если вернулся null -- поля не очищайте, ошибку покажет разметка ниже.
+    const comment = await execute({
+      postId,
+      name,
+      email,
+      body,
+    });
+
+    if (comment) {
+      onCreated(comment);
+      setName('');
+      setEmail('');
+      setBody('');
+    }
   }
 
   return (
     <form className="form" onSubmit={handleSubmit}>
       <h3>Новый комментарий</h3>
+
       <input
         className="input"
         value={name}
         onChange={e => setName(e.target.value)}
-        placeholder="Тема"
-      />
+        placeholder="Тема"/>
+
       <input
         className="input"
         type="email"
         value={email}
         onChange={e => setEmail(e.target.value)}
-        placeholder="Email"
-      />
+        placeholder="Email"/>
+
       <textarea
         className="input"
         rows={3}
         value={body}
         onChange={e => setBody(e.target.value)}
-        placeholder="Текст комментария"
-      />
-      <button type="submit" className="button" disabled={!isValid || isLoading}>
+        placeholder="Текст комментария"/>
+
+      <button
+        type="submit"
+        className="button"
+        disabled={!isValid || isLoading}>
         {isLoading ? 'Отправка...' : 'Отправить'}
       </button>
+
       {error && <p className="error-text">{error}</p>}
     </form>
   );

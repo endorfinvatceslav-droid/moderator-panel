@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { endpoints } from '../api/endpoints';
 import { AuthorBadge } from '../components/AuthorBadge';
+import { CommentForm } from '../components/CommentForm';
 import { CommentList } from '../components/CommentList';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { Loader } from '../components/Loader';
@@ -9,6 +11,7 @@ import type { Comment, Post } from '../types';
 
 export default function PostPage() {
   const { postId = '' } = useParams();
+  const [newComments, setNewComments] = useState<Comment[]>([]);
 
   const {
     data: post,
@@ -24,6 +27,13 @@ export default function PostPage() {
     error: commentsError,
     refetch: refetchComments,
   } = useFetch<Comment[]>(endpoints.postComments(postId));
+
+  function handleCreated(comment: Comment) {
+    setNewComments(comments => [
+      ...comments,
+      { ...comment, id: Date.now() },
+    ]);
+  }
 
   if (postLoading) return <Loader />;
 
@@ -44,6 +54,8 @@ export default function PostPage() {
     );
   }
 
+  const allComments = [...(comments ?? []), ...newComments];
+
   return (
     <section>
       <Link to="/posts" className="back-link">
@@ -57,7 +69,7 @@ export default function PostPage() {
 
       <h2>Комментарии</h2>
 
-      {commentsLoading && <Loader text="Загрузка..." />}
+      {commentsLoading && <Loader text="Загружаем комментарии..." />}
 
       {commentsError && (
         <ErrorMessage
@@ -66,8 +78,12 @@ export default function PostPage() {
       )}
 
       {!commentsLoading && !commentsError && (
-        <CommentList comments={comments ?? []} />
+        <CommentList comments={allComments} />
       )}
+
+      <CommentForm
+        postId={post.id}
+        onCreated={handleCreated}/>
     </section>
   );
 }
