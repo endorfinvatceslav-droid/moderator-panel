@@ -13,43 +13,34 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to="/posts" replace />} />
+        <Route path="/" element={
+          <Navigate to="/posts" replace />}/>
 
-        <Route
-          path="/posts"
-          element={
+        <Route path="/posts"  element={
             <Suspense fallback={<Loader />}>
               <PostsPage />
             </Suspense>
           }/>
 
-        <Route
-          path="/posts/:postId"
-          element={
+        <Route path="/posts/:postId" element={
             <Suspense fallback={<Loader />}>
               <PostPage />
             </Suspense>
           }/>
 
-        <Route
-          path="/users"
-          element={
+        <Route path="/users" element={
             <Suspense fallback={<Loader />}>
               <UsersPage />
             </Suspense>
           }/>
 
-        <Route
-          path="/photos"
-          element={
+        <Route path="/photos" element={
             <Suspense fallback={<Loader />}>
               <PhotosPage />
             </Suspense>
           }/>
 
-        <Route
-          path="*"
-          element={
+        <Route path="*" element={
             <Suspense fallback={<Loader />}>
               <NotFoundPage />
             </Suspense>

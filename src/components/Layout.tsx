@@ -10,7 +10,7 @@ export function Layout() {
   return (
     <div className="app">
       <header className="header">
-        <span className="header__title">Панель модератора</span>
+        <span className="header__title">панель модератора</span>
         <nav className="nav">
           {links.map(link => (
             <NavLink
