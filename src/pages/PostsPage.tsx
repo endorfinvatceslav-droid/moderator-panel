@@ -20,9 +20,7 @@ export default function PostsPage() {
     isLoading,
     error,
     refetch,
-  } = useFetch<Post[]>(
-    endpoints.posts({ page, query: debouncedQuery })
-  );
+  } = useFetch<Post[]>(endpoints.posts({ page, query: debouncedQuery }));
 
   function handleQueryChange(value: string) {
     setQuery(value);

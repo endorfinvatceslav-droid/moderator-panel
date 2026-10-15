@@ -29,10 +29,7 @@ export default function PostPage() {
   } = useFetch<Comment[]>(endpoints.postComments(postId));
 
   function handleCreated(comment: Comment) {
-    setNewComments(comments => [
-      ...comments,
-      { ...comment, id: Date.now() },
-    ]);
+    setNewComments(comments => [...comments, { ...comment, id: Date.now() }]);
   }
 
   if (postLoading) return <Loader />;
@@ -69,7 +66,7 @@ export default function PostPage() {
 
       <h2>Комментарии</h2>
 
-      {commentsLoading && <Loader text="Загружаем комментарии..." />}
+      {commentsLoading && <Loader text="Загружаем комментарии" />}
 
       {commentsError && (
         <ErrorMessage

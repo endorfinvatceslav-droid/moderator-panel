@@ -19,8 +19,7 @@ const PhotoRow = memo(function PhotoRow({
   photo,
   isFavorite,
   onToggleFavorite,
-}: PhotoRowProps) {
-  simulateHeavyRender();
+}: PhotoRowProps) { simulateHeavyRender();
 
   return (
     <div className="photo-row">
@@ -30,8 +29,7 @@ const PhotoRow = memo(function PhotoRow({
       <button
         type="button"
         className="button"
-        onClick={() => onToggleFavorite(photo.id)}
-      >
+        onClick={() => onToggleFavorite(photo.id)}>
         {isFavorite ? 'Убрать' : 'В избранное'}
       </button>
     </div>
@@ -56,18 +54,9 @@ export default function PhotosPage() {
 
   const visiblePhotos = useMemo(() => {
     return (photos ?? [])
-      .filter(
-        photo =>
-          albumId === 'all' || photo.albumId === Number(albumId)
-      )
-      .filter(photo =>
-        photo.title.toLowerCase().includes(query.toLowerCase())
-      )
-      .sort((a, b) =>
-        sortOrder === 'asc'
-          ? a.title.localeCompare(b.title)
-          : b.title.localeCompare(a.title)
-      );
+      .filter( photo => albumId === 'all' || photo.albumId === Number(albumId))
+      .filter(photo => photo.title.toLowerCase().includes(query.toLowerCase()))
+      .sort((a, b) => sortOrder === 'asc' ? a.title.localeCompare(b.title): b.title.localeCompare(a.title));
   }, [photos, query, albumId, sortOrder]);
 
   const handleToggleFavorite = useCallback((id: number) => {
@@ -106,10 +95,10 @@ export default function PhotosPage() {
           className="input"
           value={albumId}
           onChange={e => setAlbumId(e.target.value)}>
-          <option value="all">Все альбомы</option>
+          <option value="all">все альбомы</option>
           {ALBUM_IDS.map(id => (
             <option key={id} value={id}>
-              Альбом {id}
+              альбом {id}
             </option>
           ))}
         </select>
@@ -126,30 +115,17 @@ export default function PhotosPage() {
       </div>
 
       <p>
-        Показано: {visiblePhotos.length} из {photos?.length ?? 0}.
-        В избранном: {favorites.length}
+        показано: {visiblePhotos.length} из {photos?.length ?? 0}.
+        в избранном: {favorites.length}
       </p>
 
       <div ref={parentRef} className="photo-list">
-        <div
-          style={{
-            height: `${virtualizer.getTotalSize()}px`,
-            position: 'relative',
-          }}>
+        <div>
           {virtualizer.getVirtualItems().map(item => {
             const photo = visiblePhotos[item.index];
 
             return (
-              <div
-                key={photo.id}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${item.size}px`,
-                  transform: `translateY(${item.start}px)`,
-                }}>
+              <div key={photo.id}>
                 <PhotoRow
                   photo={photo}
                   isFavorite={favorites.includes(photo.id)}
